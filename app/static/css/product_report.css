@@ -44,7 +44,7 @@ a { color: inherit; }
 .report-share > div { max-width: 430px; }
 .report-share h2 { font-size: 21px; }
 .report-share p:last-child { margin-bottom: 0; color: var(--report-muted); }
-.report-share img { width: 104px; height: 104px; padding: 5px; border: 1px solid var(--report-rule); border-radius: 8px; background: white; }
+.report-share img { flex: 0 0 180px; width: 180px; height: 180px; padding: 8px; image-rendering: pixelated; border: 1px solid var(--report-rule); border-radius: 8px; background: white; }
 .report-footer { align-items: flex-start; margin-top: 28px; padding-top: 18px; border-top: 1px solid var(--report-rule); color: var(--report-muted); font-size: 13px; }
 .report-footer a { color: var(--report-accent); font-weight: 600; }
 a:focus-visible { outline: 2px solid var(--report-accent); outline-offset: 3px; border-radius: 3px; }
@@ -74,8 +74,8 @@ a:focus-visible { outline: 2px solid var(--report-accent); outline-offset: 3px; 
     .product-intro h1 { font-size: 31px; }
     .report-label { font-size: 9px; }
     .report-facts > div { grid-template-columns: minmax(105px, .8fr) minmax(0, 1.2fr); gap: 10px; font-size: 14px; }
-    .report-share { align-items: flex-start; }
-    .report-share img { width: 82px; height: 82px; flex: 0 0 82px; }
+    .report-share { flex-direction: column; align-items: flex-start; }
+    .report-share img { width: 150px; height: 150px; flex: 0 0 150px; }
     .report-footer { flex-direction: column; gap: 8px; }
     .lab-total { font-size: 64px; }
 }

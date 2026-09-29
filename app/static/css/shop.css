@@ -357,9 +357,10 @@
 
 .product-report-qr {
     display: block;
-    width: 58px;
-    height: 58px;
-    padding: 3px;
+    width: 150px;
+    height: 150px;
+    padding: 6px;
+    image-rendering: pixelated;
     border: 1px solid var(--border);
     background: #fff;
 }

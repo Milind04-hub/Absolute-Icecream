@@ -7,8 +7,8 @@ def generate_qr_code(data):
     """Create a PNG QR code for the supplied URL or text."""
     qr = qrcode.QRCode(
         version=None,
-        error_correction=qrcode.constants.ERROR_CORRECT_H,
-        box_size=12,
+        error_correction=qrcode.constants.ERROR_CORRECT_M,
+        box_size=10,
         border=4,
     )
 
