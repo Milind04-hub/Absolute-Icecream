@@ -1,0 +1,25 @@
+# Render Blueprint: free web service for the Absolute Icecream demo.
+# In Render: New > Blueprint > connect this repo > Apply.
+# QR codes use Render's own address automatically (RENDER_EXTERNAL_URL).
+# Set PUBLIC_BASE_URL only if you add a custom domain.
+services:
+  - type: web
+    name: absolute-icecream
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: python scripts/bootstrap.py && gunicorn --bind 0.0.0.0:$PORT --workers 2 --access-logfile - --error-logfile - wsgi:app
+    healthCheckPath: /
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.7
+      - key: FLASK_CONFIG
+        value: production
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DATABASE_URL
+        value: sqlite:///absolute_icecream.db
+      - key: SHOW_SAMPLE_LAB_REPORTS
+        value: "1"
+      - key: TRUST_PROXY_HEADERS
+        value: "1"

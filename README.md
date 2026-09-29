@@ -153,6 +153,47 @@ The app is available at <http://127.0.0.1:5000>. Stop the stack with
 `docker compose down`; add `--volumes` only if you also intend to delete the
 local PostgreSQL data volume.
 
+## Free hosting on Render (demo)
+
+This is the quickest way to get a public link for the storefront and the
+product report QR codes.
+
+1. Push this repository to GitHub.
+2. On [render.com](https://render.com), sign in with GitHub and choose
+   **New > Blueprint**, select this repository, then **Apply**. Render reads
+   `render.yaml` and creates a free web service.
+3. Wait for the first deploy to finish, then open the service URL, for
+   example `https://absolute-icecream.onrender.com`.
+4. Check a report page: `/reports/dark-chocolate`. The "Opens" line under the
+   QR must show your public `https://` address.
+
+How the QR codes stay correct: report links are built from `PUBLIC_BASE_URL`
+if you set it (use this for a custom domain), otherwise from Render's own
+`RENDER_EXTERNAL_URL`. They are never built from `127.0.0.1` or an internal
+host. `TRUST_PROXY_HEADERS=1` lets Flask see the real `https` address behind
+Render's proxy.
+
+Print-ready QR images for every flavour:
+
+```sh
+flask --app run.py export-qr --base-url https://absolute-icecream.onrender.com
+```
+
+This writes one PNG per product to `qr_exports/`.
+
+Notes for the free tier:
+
+- The service sleeps after about 15 minutes without visits, and the next
+  visit takes up to a minute to wake it. Open the site a few minutes before a
+  live demo.
+- The demo uses SQLite on a temporary disk, so orders and accounts reset on
+  every restart; products are re-seeded automatically by
+  `scripts/bootstrap.py`. Use a hosted PostgreSQL `DATABASE_URL` for anything
+  that must persist.
+- `SHOW_SAMPLE_LAB_REPORTS=1` shows clearly labelled sample lab results from
+  `app/data/lab_reports.py`. Set it to `0` (the default) for a real launch and
+  replace the sample data with verified results.
+
 ## AWS hosting (ECS Fargate)
 
 The AWS deployment files are in `deploy/aws/terraform`. They provision an

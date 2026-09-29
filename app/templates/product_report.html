@@ -30,6 +30,61 @@
             </div>
         </section>
 
+        {% if lab %}
+        {% if lab.sample %}
+        <p class="sample-banner" role="note"><strong>Sample report.</strong> Illustrative figures for demonstration, not a real laboratory result.</p>
+        {% endif %}
+
+        <section class="lab-result" aria-labelledby="total-title">
+            <p class="eyebrow" id="total-title">TOTAL SUGARS, LACTOSE INCLUDED</p>
+            <p class="lab-total">{{ '%.2f'|format(lab.total_sugars) }}<span>g per 100 g</span></p>
+            {% if lab.within_limit %}
+            <p class="lab-verdict">Within the {{ lab.limit }} g sugar-free limit</p>
+            {% else %}
+            <p class="lab-verdict lab-verdict-fail">Above the {{ lab.limit }} g sugar-free limit</p>
+            {% endif %}
+            <div class="lab-scale" role="img" aria-label="{{ lab.total_sugars }} grams on a scale from 0 to 1 gram; the sugar-free limit is {{ lab.limit }} grams">
+                <span class="lab-limit-label">Sugar-free limit {{ lab.limit }} g</span>
+                <div class="lab-track">
+                    <div class="lab-fill" style="width: {{ lab.fill_percent }}%"></div>
+                    <div class="lab-limit"></div>
+                </div>
+                <div class="lab-ticks"><span>0 g</span><span>0.25</span><span>0.5</span><span>0.75</span><span>1 g</span></div>
+            </div>
+            <p class="lab-batch">Batch {{ lab.batch }}</p>
+        </section>
+
+        <section class="report-section">
+            <h2>Where the total comes from</h2>
+            <p class="section-intro">Every sugar tested, per 100 g.</p>
+            <dl class="report-facts">
+                {% for name, value in lab.sugars %}
+                <div><dt>{{ name }}</dt><dd{% if value is none %} class="pending"{% endif %}>{{ '%.2f g'|format(value) if value is not none else 'not detected' }}</dd></div>
+                {% endfor %}
+                <div class="lab-sum"><dt>Total sugars</dt><dd>{{ '%.2f g'|format(lab.total_sugars) }}</dd></div>
+            </dl>
+        </section>
+
+        <section class="report-section">
+            <h2>What sweetens it instead</h2>
+            <p class="section-intro">Checked in the same test.</p>
+            <dl class="report-facts">
+                {% for name, result, note in lab.sweeteners %}
+                <div><dt>{{ name }}{% if note %}<small>{{ note }}</small>{% endif %}</dt><dd{% if result is none %} class="pending"{% endif %}>{{ result or 'not detected' }}</dd></div>
+                {% endfor %}
+            </dl>
+        </section>
+
+        <section class="report-section">
+            <h2>Testing details</h2>
+            <dl class="report-facts">
+                <div><dt>Testing laboratory</dt><dd class="pending">{{ lab.lab_name or 'To be added' }}</dd></div>
+                <div><dt>Accreditation</dt><dd class="pending">{{ lab.accreditation or 'To be added' }}</dd></div>
+                <div><dt>Method</dt><dd>{{ lab.method }}</dd></div>
+                <div><dt>Tested</dt><dd>{{ lab.tested_on }}</dd></div>
+            </dl>
+        </section>
+        {% else %}
         <section class="report-status" aria-labelledby="lab-status-title">
             <div class="status-heading">
                 <span class="status-icon" aria-hidden="true">!</span>
@@ -52,6 +107,8 @@
                 <div><dt>Test method and date</dt><dd class="pending">Not published</dd></div>
             </dl>
         </section>
+
+        {% endif %}
 
         <section class="report-section">
             <h2>Product information</h2>
@@ -83,6 +140,7 @@
                 <p class="eyebrow">PRODUCT QR</p>
                 <h2 id="share-title">This QR opens this report</h2>
                 <p>Scan to open this product's report page. Each flavour has its own product-specific QR link.</p>
+                <p class="qr-target">Opens <span>{{ report_url }}</span></p>
             </div>
             <img src="{{ url_for('reports.product_report_qr', slug=product.slug) }}" alt="QR code linking to the {{ product.name }} product report">
         </section>

@@ -251,3 +251,6 @@ crash.log
 crash.*.log
 terraform.tfvars
 terraform.tfvars.json
+
+# Generated QR exports
+qr_exports/

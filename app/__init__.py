@@ -2,7 +2,9 @@
 
 import os
 
+import click
 from flask import Flask, render_template
+from werkzeug.middleware.proxy_fix import ProxyFix
 
 from app.config import config_by_name
 from app.extensions import db, login_manager, migrate
@@ -22,6 +24,11 @@ def create_app(config_name=None):
     app.config.from_object(config)
     if config_name == "production" and not os.getenv("SECRET_KEY"):
         raise RuntimeError("SECRET_KEY must be configured in production.")
+
+    if app.config.get("TRUST_PROXY_HEADERS"):
+        # Hosting platforms terminate HTTPS at a proxy; without this, Flask
+        # sees plain http and the proxy's internal host name.
+        app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1)
 
     db.init_app(app)
     migrate.init_app(app, db)
@@ -57,6 +64,28 @@ def create_app(config_name=None):
     for blueprint in (main_bp, shop_bp, cart_bp, checkout_bp, reports_bp, auth_bp,
                       account_bp, admin_bp):
         app.register_blueprint(blueprint)
+
+    @app.cli.command("export-qr")
+    @click.option("--base-url", default=None,
+                  help="Public site address, e.g. https://absolute-icecream.onrender.com")
+    @click.option("--out", default="qr_exports", show_default=True)
+    def export_qr(base_url, out):
+        """Write a print-ready QR PNG for every active product's report."""
+        from app.models.product import Product
+        from app.services.qr_service import generate_qr_code
+
+        base = (base_url or app.config.get("PUBLIC_BASE_URL") or "").rstrip("/")
+        if not base.startswith(("http://", "https://")):
+            raise click.UsageError(
+                "Give --base-url or set PUBLIC_BASE_URL to the public https address."
+            )
+        os.makedirs(out, exist_ok=True)
+        for product in Product.query.filter_by(is_active=True).all():
+            url = f"{base}/reports/{product.slug}"
+            path = os.path.join(out, f"{product.slug}-report-qr.png")
+            with open(path, "wb") as handle:
+                handle.write(generate_qr_code(url).getvalue())
+            click.echo(f"{path} -> {url}")
 
     @app.errorhandler(403)
     def forbidden(error):
